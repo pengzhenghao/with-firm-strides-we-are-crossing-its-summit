@@ -4,15 +4,15 @@
 
 <br>
 
-> 雄关漫道真如铁，Idle boast the strong pass is a wall of iron,
+> 雄关漫道真如铁，	Idle boast the strong pass is a wall of iron,
 > 
-> 而今迈步从头越。With firm strides we are crossing its summit. 
+> 而今迈步从头越。	With firm strides we are crossing its summit. 
 > 
-> 从头越，We are crossing its summit, 
+> 从头越，	We are crossing its summit, 
 > 
-> 苍山如海，The rolling hills sea-blue, 
+> 苍山如海，	The rolling hills sea-blue, 
 > 
-> 残阳如血。The dying sun blood-red.
+> 残阳如血。	The dying sun blood-red.
 
 <br>
 
@@ -263,6 +263,83 @@ Behavioral Similarity Measure（BSM）是进化机器人学很重要的问题。
 一组简单的控制器，每个负责往一个方向走，那么把他们融合起来就会得到一个掌握了往各个方向走的技能的agent。
 
 因此，本文的核心任务就是“evolving a repertoire”。学会各种简单的任务，比学会一个复杂的任务要简单。独立的学习不同任务可能会很昂贵。因此作者提出的Transferability-based Behavioral Repertoire Evolution algorithm (TBR-Evolution)将问题从一个agent的许多许多技能变成了学习许多许多个各不相同的agent。
+
+(TODO)
+
+
+
+#### Discovering the Elite Hypervolume by Leveraging Interspecies Correlation
+
+(TODO!!)
+
+
+
+## Multi-agent RL
+
+#### Influence-based Multi-agent Exploration
+
+出发点非常的有道理：既然是MARL了，Exploration的过程也该有协调才对。
+
+所以作者提出了两种协调方式：
+
+##### Exploration via Information-theoretic Influence (EITI)
+
+使用互信息来描述“Influence Transition Dynamics”
+
+##### Exploration via Decision-theoretic Influence (EDTI)
+
+使用新的Intrinsic Reward，称为“Value of Interaction”来描述和定量分析一个agent的行为对别的agent的影响。
+
+（TODO这是一个好文章，要认真读一下）
+
+
+
+
+
+#### Map-based Multi-Policy Reinforcement Learning: Enhancing Adaptability of Robots by Deep Reinforcement Learning
+
+在摘要中写到几个两点：
+
+1. 在保证最大化return的前提下，寻找和存储各种行为的agents于一个有多维度的离散Map中。
+2. 可以快速进行Adaptation，不需要重训练
+3. Agents可以快速适应大的变化而不需要知道有关“他自己受伤”的先验信息。
+
+
+
+作者将Map Elites中原来的那个Mutation换成了DRL。作者用了DDPG。
+
+原来Cully在做断腿恢复的时候，分为两个步骤，第一个步骤建立Map，第二个步骤引入Adaptation Phase。第二个步骤使用贝叶斯优化的方法，在第一步建立起来的Map里寻找“最适合如今形势”的policy。（没有细看原理，如有必要可以翻看贝叶斯优化和Cully那个Nature断腿求生文章。）
+
+算法流程：
+
+<img src="figs/image-20191101231139500.png" alt="image-20191101231139500" style="zoom: 50%;" />
+
+1. 首先初始化一个Map。每个agent训练自己的actor和critic直到指定数目的iteration结束。构造一个map。
+2. 如果频率到了，就把如今的actor、critic换成在Map里随机抽取的。然后用DDPG继续训练。
+
+
+
+所以我们可以看到，其实这个训练吧，还是序列化的进行的。而且没什么创新……就是把Mutation换成了DDPG而已……而且作者说，用DDPG就是看中了他的训练不稳定性，这样他就有很大的随机性了。
+
+值得一提的是，作者用了Walker环境和蜘蛛人两个环境来训练。Walker环境他人为定义了Behavioral Descriptor：
+
+<img src="figs/image-20191101231955358.png" alt="image-20191101231955358" style="width:20%;" /><img src="figs/image-20191101231945572.png" alt="image-20191101231945572" style="width:60%;" />
+
+补充一下，在Clune的ICML2019演讲中，略带了这篇文章。
+
+<img src="figs/image-20191101224143892.png" alt="image-20191101224143892" style="zoom:25%;" />
+
+很可惜，即使是训练DRL，也没有【额外的指示】来帮助寻找下一个Map。
+
+
+
+
+
+## Meta Learning
+
+
+
+#### TASK2VEC: Task Embedding for Meta-Learning 
 
 (TODO)
 
