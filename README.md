@@ -343,3 +343,81 @@ Behavioral Similarity Measure（BSM）是进化机器人学很重要的问题。
 
 (TODO)
 
+
+
+
+
+## Interpretation
+
+#### Unmasking Clever Hans Predictors and Assessing What Machines Really Learn 
+
+Wojciech Samek。
+
+Test Error和平均Reward不能代表agent的决策。我们需要理解决策的机制（无论是图象任务还是打游戏）。作者因此提出了一个半自动的“Spectral Relevance Analysis”可以characterizing、验证一个模型的行为。
+
+观点：
+
+1. 有的时候模型会发现训练数据的奇怪关联，从而假装自己已经学会了（就是过拟合啦）。这在心理学上称为[Clever Hans phenomenon](https://en.wikipedia.org/wiki/Clever_Hans)。
+2. 去**解释模型怎么预测一个单独的样本**，比告诉你一个feature在整个数据集中是什么作用有时候更有意义。
+3. 有时候虽然不同的模型表现是相似的，但是行为非常不一致。（彭：对啊，RL的时候见得太多了。反而在CV的时候这种不一致还不太好观察。）
+4. 理想的解释方法能够给出一个从输入到输出的因果链。
+5. Layer-wise Relevance Propagation（LRP）很重要。作者并提出了SpRAy（Spectral Relevance Analysis）可以半自动的识别大量决策行为，从而可以帮助我们去取消那些奇怪的行为。最后，作者的半自动异常检测算法就可以用end-to-end的来评测ML模型在测试集准确率或Reward之外的性能。
+
+##### 几个LRP和SpRAy的展示例子
+
+作者先开始展示了几个例子。
+
+![image-20191102145913138](figs/image-20191102145913138.png)
+
+第一个展示（a）是，在某个分类任务中，马匹的图片左下角都有水印。Fisher Vector模型的Heatmap（根据LRP方法给出的Heatmap）显示它指关注这个水印。而DNN模型则关注马头马身之类的。然后作者试了各种取消tag或者把tag放在别的类上，得到结论Fisher Vector模型确实失败了。
+
+第二个展示（b）是，在Atari打弹珠的任务中。作者观察到agent学会先触碰一个加速器开关，然后再一直循环打球。
+
+第三个展示（c）是一个很好的训练结果。在训练的后期Agent学会了关注真正有用的区域。
+
+总而言之，这些展示都是为了显示Heatmap的作用。那么问题来了，到底Heatmap怎么产生？
+
+##### Layer-wise Relevance Propaghation（LRP）
+
+假设神经网络的输出和输入有直接的关系：$f(x) = \sum_p R_{p}^{(1)}$，p表示pixel，1表示第一层。然后再定义一个简单的传播法则：$R^{(l+1)}_j = \sum_{i} \frac{z_{ij}}{\sum z_{ij}}R^{(l)}$ 其中z为神经元i对j的贡献，也就是$w_{ij}a_i$ 权重乘以它的激活值。
+
+总之，LRP就是定义了这么一批概念，传播法则、“贡献”等等。计算LRP的时候需要Back
+
+
+
+##### Spectral Relevance Analysis
+
+<img src="figs/image-20191102153428094.png" alt="image-20191102153428094" style="zoom:67%;" />
+
+步骤如下：
+
+1. 先用LRP得到你感兴趣的那个照片的Relevance Map
+2. 降维，并使得这些Map的尺寸一致
+3. Spectral Cluster在relevance map上进行分析。至此为止，我们得到了relevance map的结构，并且将分类器的行为分成了几个聚类。（彭：哇，分类器的行为的聚类！）
+4. 通过eigengap分析识别出我们感兴趣的聚类。SC的特征值光谱（eigenvalue spectrum）包含了relevance map聚类的信息。（见下）
+5. tSNE聚类可视化。（第四步会得到一个sample-sample的矩阵，这个矩阵可以变成距离矩阵，然后扔给tSNE进行聚类）
+
+SpRAy对Heatmap进行操作，而不是对原始的图像进行操作。
+
+##### Spectral Cluster
+
+首先计算一个sample-sample的矩阵，$w_{ij} = 1$ 表示j在i的k近邻中，反之为0。然后定义拉普拉斯矩阵L：
+
+<img src="figs/image-20191102162646541.png" alt="image-20191102162646541" style="zoom:33%;" />
+
+对L进行特征值分解可以得到N个特征值和特征向量。特征向量就是“表征”。
+
+##### Eigengap
+
+前面说有N个特征值。我们知道最小的特征值等于0。且等于零的特征值数目表示聚类的数目。但有的时候可能数据点没有分的太开。这个时候，我们会注意到有的特征值接近0，然后有的特征值远大于0。这中间存在一个gap，就是特征值急剧升高的gap。我们设定一个threshold的话就可以发现这个gap，从而区分开不同的特征值，从而知道聚类的数目。
+
+##### 总结
+
+1. SpRAy让用户可以发现分类器的决策过程。
+2. Spectral Analysis可以直观的展示Prediction Stategies（因为聚类了）
+
+感觉不太能用啊，因为：
+
+1. LRP只针对离散的输出？比如分类任务、或Atari（有待确认）
+2. 整个操作的对象都是图片
+3. 都是单张图片，而不是agent本身的决策序列。
