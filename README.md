@@ -341,9 +341,78 @@ Behavioral Similarity Measure（BSM）是进化机器人学很重要的问题。
 
 #### TASK2VEC: Task Embedding for Meta-Learning 
 
-(TODO)
+embedding的大小（norm）表示task的复杂程度，距离表示相似性。embedding表示了input domain的特性。
 
+作者发现权重相对于与task有关的loss的梯度也是一种rich representation of task，就像feature是关于输入图片的一种rich representation一样。
 
+task的定义：一个有标签的数据集。
+
+作者将数据集喂给一个已经训练好的“probe network”，计算网络参数的diagonal Fisher Information Matrix（FIM），得到task的结构。因为probe网络是固定的，所以这个Fisher Information Matrix也是固定的。
+
+Task Embedding可以用来了解Task Space，并解决“meta-tasks”（？？？）。为了解决Task2Vec只考虑了task而不考虑模型性质的这个问题，作者还提出了Model2Vec，然后就可以把Model Embdding和Task Embedding一起比较从而来帮助选择pretrained model。（？？？好牛逼的样子）
+
+##### Task Embedding via Fisher Information
+
+先考虑如何知道权重的重要性。扰动权重：$w' = w + \delta w$ 观察输出的预测分布的KL散度：
+
+$E_{x} KL(P_{w'}(y|x) || P_{w}(y|x)) = \delta w\cdot F\delta w + o(\delta w^2)$
+
+右手边是KL散度的二阶展开。F就是Fisher信息矩阵：
+
+$F = \mathbb E_{x, y\sim P_w(y|x)}[\nabla_w \log P_w(y|x)\nabla_w \log P_w(y|x)^T]$
+
+* FIM是概率分布空间中的一个黎曼距离。如果一个权重关于最终表现的影响不大，那么这个权重对应的行和列都应该比较小。
+* FIM和Kolmogorov task复杂度有关。
+* FIM可以理解成是一个Hessian of the cross-entropy loss的容易计算的、正定矩阵的、上界的近似。
+
+彭：让我把这个式子拆开来看：
+
+$F_{ij} =  \mathbb E_{x, y\sim P_w(y|x)}\{ [\nabla_w \log P_w(y|x)]_i [\nabla_w \log P_w(y|x)]_j \}$
+
+也就是说，在给定数据集的情况下，这个矩阵就是各个权重的梯度。应该是对角矩阵。很尴尬的是，这里其实涉及到三组向量，输入、权重、输出，这三个向量的维度都很巨大。所幸的是，作者使用的是输入和输出都直接采样了。
+
+*彭：这个思路好啊，我们把一个agent采集到的数据作为一个dataset（这样task对应于agent，image对应于frame），就可开搞了！*
+
+##### Task2Vec Embedding using a probe network
+
+直觉：我们知道网络的激活值包含了input的信息。FIM则包含了对如今task更有用的一群feature map。
+
+作者使用ImageNet预训练的神经网络作为特征提取器，只训练最后一层分类层。然后计算特征提取器的参数的FIM。然而CNN的参数实在是太多了，因此作者还进行了两个修改：（1）只考虑FIM的对角线元素，也就是自己和自己比了。（2）对一个filter，均一化其中的参数的FIM（因为同一个filter中的权重可能有关联，那干脆直接平均好了）。
+
+作者指出，FIM是一个局部数值，反映了training loss附近的局部空间。这个空间（平面）是高度不规则的。为了解决这个问题，作者提出了一个鲁棒的近似器，与variational inference有关。简而言之就是给出了一个Loss，优化它，得到一个东西，可以代替FIM。反正这段我看晕了。关键词：Stochastic Gradient Variational Bayes，Local Reparametrization Trick，Variational Inference。
+
+<img src="figs/image-20191102221318602.png" alt="image-20191102221318602" style="zoom:33%;" />
+
+##### Properties of the Task2Vec embedding
+
+作者说一个domain embedding，比方说输入x的协方差，或激活值z的协方差，这个矩阵就与label无关，因此叫做domain embdding。而上面提到的是task embedding，它跟label有关。对比这两个东西有一些有趣的性质：
+
+1. 关于标签的不变性：改变输出的类别、改变输出的顺序，并不会影响结果。因为我们只针对特征提取网络中的权重来搞。
+2. 任务的复杂度也考虑了：如果网络对输出特别自信，那么那个位置的F值是接近于0的（log 1）。所以FIM值越大，任务复杂度越大。实验有显示FIM值越大，Test Error越大。
+3. 任务的域domain也考虑了：那些把分类器搞糊涂的样本点，也就是 p=0.5 的数据，对于embedding的贡献更大。（为什么？以及这怎么就证明了domain也考虑了？）
+4. 将任务的有用的特征都包含进来了：因为采用FIM的对角线上的值，它表示了权重的改变会如何影响输出，这反映了Loss曲面在权重空间中的形状。而且这个形状是跟task有关的。因此我们说其反映了跟task有关的特征。相反，如果你只考虑feature的协方差矩阵，那么他只反映了你改变权重会怎么改变激活值，而不会告诉你这个改变与task有什么关系。
+
+##### Similarity measures on the space of tasks
+
+meta-task：通过观察已知的数据集，在许多预训练网络中选择一个最好的，以帮助提升表现。
+
+*彭：假设task->agent，则这算不算就是agent-retrieval了？*
+
+##### Model2Vec: task/model co-embedding
+
+$m = F + b$，其中b是一个可以学习的向量。做了一个简单的Loss：给定一堆model embedding（这时你就有了一堆待训练的b），最大化选择best model的概率。这里有点乱搞，所以略过。
+
+##### 结论
+
+可看的参考文献：
+
+[9]：H. Edwards and A. Storkey. Towards a neural statistician. arXiv preprint arXiv:1606.02185, 2016. 
+
+Autoencoder跨不同的数据集学习固定长度的embedding。但作者说对于自然图象，数据集的domain是一样的，因此不能使用这种方法。（暗示这个方法假设数据集的domain是不一样的）。
+
+[18]：D. P. Kingma, T. Salimans, and M. Welling. Variational dropout and the local reparameterization trick. In *Advances in Neural Information Processing Systems*, pages 2575– 2583, 2015. 3, 13 
+
+用来训练鲁棒版本的FIM。有一个神奇Loss，和Reparametrization Trick。
 
 
 
