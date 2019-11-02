@@ -421,3 +421,13 @@ SpRAy对Heatmap进行操作，而不是对原始的图像进行操作。
 1. LRP只针对离散的输出？比如分类任务、或Atari（有待确认）
 2. 整个操作的对象都是图片
 3. 都是单张图片，而不是agent本身的决策序列。
+
+
+
+#### Free-Lunch Saliency via Attention in Atari Agents 
+
+为特征提取器添加了一个attention模块称之为FLS（Free Lunch Saliency）。可以生成saliency map，反应目前agent正在看哪里。
+
+<img src="figs/image-20191102174026601.png" alt="image-20191102174026601" style="zoom:50%;" />
+
+太无聊了。增加一个attention模块然后干啥干啥的。毫无新意。不看了。
