@@ -333,6 +333,16 @@ Behavioral Similarity Measure（BSM）是进化机器人学很重要的问题。
 
 
 
+#### Competitive Experience Replay
+
+孙浩评价：Liu et al. (2019) proposed Competitive Experience Replay (CER), in which they use two actors and a centralized critic, and defined an intrinsic reward by the state coincidence of two actors. 
+
+简单来说就是A、B两个agent同时训练。如果A访问了B访问到的state（或者近似相等，比如$|s_a -s_b|<\delta$）就惩罚A，奖励B。所谓惩罚A就是原来的reward-1。所谓表扬B就是原来的reward+1。
+
+与HER算法相比（就是如果agent失败了，则将其视为一次成功的“到达了那个位置”，尽管那个位置在原来的任务中是失败的。），这个算法CER考虑的是跨agent的“reward relabelling”，而HER是“individual agent reward re-labelling”。
+
+作者用MADDPG跑。由于上面只是修改了reward而已，直接训练就好。
+
 
 
 ## Meta Learning
