@@ -130,7 +130,15 @@ Behavioral Similarity Measure（BSM）是进化机器人学很重要的问题。
 
 #### Discovering the Elite Hypervolume by Leveraging Interspecies Correlation
 
-(TODO!!)
+本文观点：
+
+1. 很大一部分物种都有着重复的基因。如果把MAP Elites中的每个格子最终留下的agent当做一个进化成功的物种的话，那么这些elites之间应该有共性，也就是说，如果考虑一个”基因空间“的话，这些精英应该在基因空间中占据一个hypervolumn。
+2. 本文设计了”基因空间“中的两个指标，spread和similarity，见右图。E表示精英的基因的集合（本来是个hypervolumn的，但是不太好搞，就用点集表示了），x就是他们的”genotype“，这是进化算法的概念了，我不太了解，感觉就是一种对agent的描述、embedding、representation。
+3. 本文基于对基因空间的一点了解和这两个指标，提出了改进ES搜索算法的办法：原来不是施加随机高斯噪声嘛，那我现在还再额外加一个有方向的噪音：$x^{(t+1)}_i = x^{(t)}_i + \sigma_1 N(0, I) + \sigma_2 (x^{(t)}_j - x^{(t)}_i) N(0, 1)$ 。这里的x就是参数空间了。ij表示agent。随机选取一个其他agent，计算我跟它的差异，然后在差异大的那个参数上噪音也大，这样我就会”向它靠拢“。这样我就可以遍历整个Hypervolumn了。这个想法挺好的可以覆盖这个”基因空间“。事实上，所谓的基因空间，就是参数空间。因此其实也可以无缝放到我们的问题中来。
+
+<img src="figs/image-20191103141418489.png" alt="image-20191103141418489" style="width:50%;" /><img src="figs/image-20191103141452592.png" alt="image-20191103141452592" style="width:50%;" />
+
+
 
 
 
