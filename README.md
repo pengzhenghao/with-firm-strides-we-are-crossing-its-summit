@@ -49,6 +49,7 @@ Fierce the west wind,
 
 * 论文从第四档标题开始，预留第二档、第三档标题分类用。
 * 论文模板在本文档的隐藏内容中。
+* 按照字典顺序排序。
 
 <!-- 
 
@@ -178,6 +179,26 @@ Antonie Cully, Yiannis Demiris
 本文把Novelty Search和Quality Diversity两种算法和ES结合在一起了。ES的具体原理就是施加噪声，然后利用Reward做加权得到梯度，然后更新。非常简单的东西。作者这里人为设定了Behaviour Characterization，然后用population中不同agent的BC的距离来表示Novelty，从而引入NS和QD的算法。
 
 作者指出QD和NS可以理解成利用一群Population来进行探索，而非一个Agent单打独斗，于是这样有扩展Exploration的作用，即从专才变成了通才。
+
+作者指出的优点：
+
+1. 将NS和QD与ES结合。
+2. 引入了允许directed exploration的快速、可扩展的RL算法家族
+3. 引入了exploration算法家族，并暗示了未来将“多个路径同时探索”与RL算法结合的可能性。
+
+##### NS-ES具体做法
+
+构造M个agent的池子。每次选择一个（通过Novelty加权的一个分布）agent，进行n次扰动，每次扰动后计算新的agent相对M个agent的novelty。（卧槽这计算量太大了吧）所谓novelty指的是两agent的”behavior characterization“的相对距离。这个BC是人为设计的。
+
+##### NSR-ES与NSRA-ES具体做法
+
+NS-ES没有考虑reward。所以NSR-ES就考虑了。做法很简单，取平均值。（回顾一下TNB，TNB就高明很多，嘻嘻）：
+
+$\theta^m = \theta^m + \alpha \cfrac{1}{n\sigma} \sum^n_{i=1} \cfrac{r(\theta^{i, m}) + N(\theta^{i, m}, A)}{2}\epsilon_i$
+
+注意 $\theta^{i, m} = \theta^m + \sigma \epsilon_i,\text{ }\epsilon_i \sim N(0, 1)$ 。这个r也是简便说法，实际上应该是平均reward。在计算求和号之前，会先对r和N两组，分别n个值的东西进行”rank-normalize “。
+
+NSRA-ES的改进之处就是不再用平均了。引入一个额外的$w,\text{ }wr(\theta^{i, m}) + (1-w)N(\theta^{i, m}, A)$ 代替上面的平均值。这个w最开始是1，如果reward停住了，就下降这个w，一直下降w直到performance开始上升，上升了的话就开始提升w。作者这里就声称了：我们既然可以通过这个w主动的控制reward和diversity的trade-off，我们这就叫”directed exploration“啦。（优点2、3达成，说实话，真能吹。）
 
 
 
