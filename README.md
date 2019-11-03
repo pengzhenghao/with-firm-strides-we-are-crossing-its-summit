@@ -510,3 +510,91 @@ SpRAy对Heatmap进行操作，而不是对原始的图像进行操作。
 <img src="figs/image-20191102174026601.png" alt="image-20191102174026601" style="zoom:50%;" />
 
 太无聊了。增加一个attention模块然后干啥干啥的。毫无新意。不看了。
+
+
+## Novelty-seeking RL
+
+#### Learning novel policies for tasks (TNB)
+
+##### Novelty定义
+
+* Idea：给定一个训练好的的Autoencoder，输入的数据与训练数据的分布差别越小，其重构误差越小，反之亦然。
+
+* 给定一个State序列$\bold{s}=(s_t, s_{t+G}, s_{t+2G}, …, s_{t+L})$，和一个autoencoder集合$\bold{D} = {D_i}$，则定义“Novelty”：
+
+  $r_{novel} = -\exp (-w_{novel} \min_{D\in \bold{D}}||D(\bold{s})-\bold{s}||^2)$
+
+* 指数形式限制了值在(0, 1)。$w_{novel}$表示敏感度。式子中的G、L是间隔采样的意思，从长度为L的rollout中每隔G帧采样。
+
+##### 双目标优化：Task-Novelty Bisector法
+
+<img src="figs/image-20190803193317886.png" alt="image-20190803193317886" style="zoom:20%;" />
+
+
+
+两个Reward函数，对应两个Policy Gradient的Gradient，具体而言就是：
+
+$J_{task}(\theta) = E[\sum_t \gamma^t r_{task}(s_t, a_t)]$
+
+$J_{novel}(\theta) = E[\sum_t \gamma^t r_{novel}(s_t, a_t)]$
+
+$g_{task} = \frac{\partial J_{task}}{\partial \theta}$
+
+$g_{novel} = \frac{\partial J_{novel}}{\partial \theta}$
+
+那么怎么优化呢？如果直接把这两个loss相加起来，就会面临加权参数的tunning问题。
+
+作者的做法是：
+
+1. 若两gradient的夹角是锐角，则最终梯度为：
+
+   **将两个梯度投影到夹角平分线上，长度为两投影的平均值**（图a）
+
+2. 若两graidnet的夹角是钝角，则最终梯度为：
+
+   **将$g_{task}$在g的垂直面上的投影作为gradient**（图b）
+
+然后再直接用这个新的梯度来更新参数。
+
+
+
+<img src="figs/image-20190803193346081.png" alt="image-20190803193346081" style="zoom:25%;" />
+
+##### 实验
+
+Setup
+
+* 五个场景：
+
+  1. Maze
+  2. Reacher
+  3. Hopper
+  4. D-Maze
+  5. D-Reacher
+
+* 在openai的PPO上面实现
+* 每个rollout长500
+* 利用最终策略和“一些“训练期间的策略作为autoencoder的数据
+
+* 比较的对象是：
+  * 直接由PPO训练得到的Policy
+  * 两个Reward加权训练得到（Weighted Sum of Rewards, WSR）
+  * 简化版Task-Novelty Bisector，即钝角时不做投影（TNB-NoProj）
+  * Task-Novelty Bisector（TNB）
+* 评价指标是：
+  * 迷宫中的寻找到的路径数目
+  * 把轨迹画出来看
+
+结果
+
+<img src="figs/image-20190803201220360.png" alt="image-20190803201220360" style="width:25%;" /><img src="figs/image-20190803201117250.png" alt="image-20190803201117250" style="width:25%;" /><img src="figs/image-20190803201133216.png" alt="image-20190803201133216" style="width:25%;" /><img src="figs/image-20190803201153212.png" alt="image-20190803201153212" style="width:25%;" /><img src="figs/image-20190803201201013.png" alt="image-20190803201201013" style="width:25%;" />
+
+##### 总结
+
+文章很简单，结论很有趣。
+
+有一些可以深思的地方：
+
+1. 场景过于简单，训练Auto-encoder本身需要很多计算，对于复杂的state、action空间会爆炸，训练AE引入新的超参
+2. Auto-encoder的重构误差真的能表示novelty吗
+3. Auto-encoder的“基础误差”没有被考虑，会带来bias
