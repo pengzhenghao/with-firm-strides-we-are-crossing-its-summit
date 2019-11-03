@@ -4,18 +4,43 @@
 
 <br>
 
-> 雄关漫道真如铁，	Idle boast the strong pass is a wall of iron,
-> 
-> 而今迈步从头越。	With firm strides we are crossing its summit. 
-> 
-> 从头越，	We are crossing its summit, 
-> 
-> 苍山如海，	The rolling hills sea-blue, 
-> 
-> 残阳如血。	The dying sun blood-red.
+<table style="text-align:center">
+<tr>
+<th>
+忆秦娥  娄山关
+</th>
+<th>
+Loushan Pass
+</th>
+</tr>
+<tr>
+<td width="54%">
+西风烈，<br>
+长空雁叫霜晨月。<br>
+霜晨月，<br>
+马蹄声碎，喇叭声咽。<br><br>
+雄关漫道真如铁，<br>
+而今迈步从头越。<br>
+从头越，<br>
+苍山如海，<br>
+残阳如血。
+</td>
+<td>
+Fierce the west wind,
+<br>Wild geese cry under the frosty morning moon.
+<br>Under the frosty morning moon
+<br>Horses' hooves clattering, Bugles sobbing low.<br>
+<br>Idle boast the strong pass is a wall of iron,
+<br>With firm strides we are crossing its summit.
+<br>We are crossing its summit, 
+<br>The rolling hills sea-blue, 
+<br>The dying sun blood-red.
+</td>
+</tr>
+</table>
+
 
 <br>
-
 ## 目录
 
 [TOC]
