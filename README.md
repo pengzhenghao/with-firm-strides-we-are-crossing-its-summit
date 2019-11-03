@@ -39,8 +39,10 @@ Fierce the west wind,
 </tr>
 </table>
 
-
 <br>
+
+
+
 ## 目录
 
 [TOC]
@@ -48,10 +50,7 @@ Fierce the west wind,
 规则：
 
 * 论文从第四档标题开始，预留第二档、第三档标题分类用。
-* 论文模板在本文档的隐藏内容中。
 * 按照字典顺序排序。
-
-<!-- 
 
 ## 笔记模板
 
@@ -65,8 +64,6 @@ Fierce the west wind,
 
 ##### 总结
 -->
-
-
 
 
 
@@ -332,6 +329,12 @@ IMGEP定义了：
 
 
 
+#### Improving Exploration in Evolution Strategies for Deep Reinforcement Learning via a Population of Novelty-Seeking Agents（引用）
+
+见【进化算法】
+
+
+
 #### Influence-based Multi-agent Exploration
 
 出发点非常的有道理：既然是MARL了，Exploration的过程也该有协调才对。
@@ -554,6 +557,12 @@ SpRAy对Heatmap进行操作，而不是对原始的图像进行操作。
 
 ## Novelty-seeking RL
 
+#### Improving Exploration in Evolution Strategies for Deep Reinforcement Learning via a Population of Novelty-Seeking Agents（引用）
+
+见【进化算法】
+
+
+
 #### Learning novel policies for tasks (TNB)
 
 ##### Novelty定义
@@ -638,3 +647,4 @@ Setup
 1. 场景过于简单，训练Auto-encoder本身需要很多计算，对于复杂的state、action空间会爆炸，训练AE引入新的超参
 2. Auto-encoder的重构误差真的能表示novelty吗
 3. Auto-encoder的“基础误差”没有被考虑，会带来bias
+
