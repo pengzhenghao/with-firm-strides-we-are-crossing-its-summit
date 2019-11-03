@@ -71,77 +71,6 @@ Fierce the west wind,
 
 ## 进化算法
 
-
-
-#### Improving Exploration in Evolution Strategies for Deep Reinforcement Learning via a Population of Novelty-Seeking Agents
-
-本文把Novelty Search和Quality Diversity两种算法和ES结合在一起了。ES的具体原理就是施加噪声，然后利用Reward做加权得到梯度，然后更新。非常简单的东西。作者这里人为设定了Behaviour Characterization，然后用population中不同agent的BC的距离来表示Novelty，从而引入NS和QD的算法。
-
-作者指出QD和NS可以理解成利用一群Population来进行探索，而非一个Agent单打独斗，于是这样有扩展Exploration的作用，即从专才变成了通才。
-
-
-
-#### Learning Behavior Characterizations for Novelty Search
-
-Behavior Characterization (BC) 将一个agent map到“行为”上，即一个表示它是什么或做了什么的向量。（这不就是我们要找的吗）本文学到的BC将用来做进化，在解迷宫问题上得到了测试。task：一个fitmess函数和一个环境。domain：一组task，用同一个BC都可以阐述。
-
-作者指出，最简单形式的BC是：Stochastic Policy Induction for Relating Inter-task Trajectories（SPIRIT），具体而言就是：以agent在特定状态下执行特定动作的概率。设可能的state：{s1, ..., sn}和可能的action：{a1, …, am}，则BC为长度为nm的向量，
-
-<img src="figs/gFg1D5tubEelXtvbGk3MsMgqQsOH6ERpj1WGVyskwL1kDaZosx4a8nacFwyo4oBF5hhV5bJghR2s3MWYp9TtfXXeX-A7XABkB1B3MiONJya_eszmyFpePKVsnULUugXcCzNbhTzV.png" alt="img" style="width:50%;" /><img src="figs/LGHx6yxs9rNmtvz5wRW9zi-NWCdaoPadqrOJhhE3GonrED-BMiv39lxHvQpq_G3Jsr_vghgyMCwMzvyU-wR_VNFCrIR9pNJ-oygQlKw4k_ezbw8DRQKdZtkJJEW1FFLgBGsfETz9.png" alt="img" style="width:45%;" />
-
-上图：一批随机Policy I，和一批随机policy S。看看怎么样才能最快的从I到S）
-
-这有点类似于QD某篇文章说的用Agent朝向东南西北所占的时间比例作为表征。但是很不幸这个需要离散的状态和动作空间。
-
-作者随后说，所谓Learning就是给BC施加一个权重向量。那么不同的方法就是不同的权重向量的获得方式。作者拿出一批随机的Policy和一批训练完毕的成功policy。然后看看这两批policy的默认BC。看看这两批Policy的两批BC在哪个维度上区别最大，然后对应的施加权重，那么就可以得到一个新BC。
-
-在AURORA文（见下）中有提到这篇文章，那个作者指出本方法需要定义“成功个体”的概念，这就引入了先验知识。
-
-
-
-#### Hierarchical Behavioral Repertoires with Unsupervised Descriptors
-
-Antonie Cully, Yiannis Demiris
-
-用了一个有层级的行为表征。主要任务是机械手学会画数字。在机器人领域用一批diverse的行为可以拓展机器人的适应性和鲁棒性。
-
-<img src="figs/CAbJcEc1haFHf4j4P5ecuSy_Ec957_NdXAcIDbcTw-jutFGhy3vjdLbZ5JI6Lv09V7IokwifIJtIjFUG2Rjv38CA3bf4eWGU3nkP77VXkHbg9MskhO49FJsdHEanm4FV-hS1fes0.png" alt="img" style="zoom: 25%;" />
-
-<img src="figs/EYOIJ2j4JsvUw_ocCzvGh8Xr-9HjIrhjDc3eKvGO_L952KCO38YU6r5yBCktHtQOhQFbL-X1O19Wt2MibyUWhwAYZdKcIKggqX7cfAxUpFxW93GVaJECfZs_2PFi7qqtEMgcIVVX.png" alt="img" style="zoom:33%;" />
-
-假设下面那个空间表示“agent画点”，那么中间这个空间就表示下面空间的一系列行为的序列，比如从一个点到另一个点。于是中间空间就表示“agent画线”。上面这个空间就是“agent画弧”。
-
-<img src="figs/PxHbqpFYp0hEQPDS3RCpy8JAVqoD5g1IDYIbzV5OIc_5yTGi057WL-RxI9YSBFoc5_TIn5GlewwcELNohyhXsB05TvJTfIsGZOwAaC6LEDn4AeSJClsL9wvUHYwrN4evuMEp5gkJ.png" alt="img" style="zoom:33%;" />
-机械臂画数字，这个数字被转换成图像，扔进MNIST的一个autoencoder中，于是得到了这个“机械臂数字->AE内部表征”。
-
-<img src="figs/nW4X_PJyNw34z1D_OUSkXpRORdZFJFxtyCiO3enP18Cw8sTJyKqgyAxuI0ZZ0FsL-B7qisZ09OiB5k2BEJhXKivbrulx5-k0RZ2i6Fvtm9TnnOYOQT4WSAMujOSusHL3uJ_fEApZ.png" alt="img" style="zoom:33%;" />
-
-因为有了这种层级表征，所以当我们替换最底层的Behavioral Repertoies为其他机器人的的时候，就可以transfer了。
-
-补充：最底层的这个空间中的点到底是什么意思？答：指的是机械手最基本的一些行为，比如说，“移动到空间(x, y)”，既代表着“一个行为”，也代表着“一个执行这个行为的机械操作”，后者我们就不管他了。
-
-思考：这个东西主要还是在机器人层面用…因为他有一个很明确的“basic behavioral descriptor”。
-
-
-
-#### Using Centroidal Voronoi Tessellations to Scale Up the Multidimensional Archive of Phenotypic Elites Algorithm
-
-有点意思，摘抄一下AURORA对他的评价：
-
-<img src="figs/v6BmvOOjGKlj3V-hwcYPOPE8MOsCgi3_Oj0WK8OJlJt75Vj80nCcjcPcDcmVy6jxNlVJHf1p7PNXnjjISDYhy0TfRTGUua3jmcMVsj5J6qkvI9jwgb2rUzKnmqdgKlcmOHq-ZGMN.png" alt="img" style="zoom: 25%;" />
-
-AURORA的作者谈到这篇文章的时候，说为什么它的结果比直接用MAP-elite好呢？因为，假设你采样了50step，每个step有一个（x，y）的坐标，那么这个BC就是100维的。在MAP-elite中，把这个100维空间给离散化，那么必然的有大量的cell是不会被填上的（因为不符合物理原理）。而CVT-MAP-Elites这个方法只采样可能的轨迹，因此就好了很多
-
-EA算法以前是作为优化算法用的。但是越来越多的人把它作为“diversifier”，比如扔进Novelty Search算法中去。
-
-<img src="figs/PR6I_EZKp2_PNliIKEY8FV6i8_k7-C1E2cbeNFZe4mlpMq_4J5cKHw57pIIty3b1b0_NMTI_EwHjM2Ug7SwAgsl_AjIHDTmOFElmrpjJSX2Md3kzv_pLGATZnuWnSzZTdoc-IsZp.png" alt="img" style="zoom:33%;" />
-
-（全局优化算法就要一个结果。多目标算法可能给出几个。population-based算法直接给你一群。）
-
-笔记正文开始：MAP-Elits对高纬度的BC空间无能为力。本文提出的方法可以给出几个指定数目的region。因为高维度的空间可以被分成若干个区域。本文运用Centroidal Voronoi Tessellation（CVT）可以将高维空间划分成若干个区域。然后就可以将任意一个高维点放进最近的区域中去。那么，相对于直接食用MAP-Elites算法把BC空间划分成一堆网格，本方法就将这个空间划分成K个区域。（格子从网格变成了不规则形状的区域）。本文就看到这里。
-
-
-
 #### Autonomous skill discovery with Quality-Diversity and Unsupervised Descriptors
 
 (AURORA)
@@ -177,6 +106,120 @@ AURORA的初始化步骤：
 3. 扔到MAP-Elites格子里面去
 
 在适当的轮数之后，重新学习DR算法。补充：扔进DR算法的东西是一个100维度的向量。表示50step，每个step有个(x,y)坐标。
+
+
+
+#### Behavioral diversity with multiple behavioral distances
+
+（2013）混合了多种Bahaviour Descriptor
+
+Behavioral Similarity Measure（BSM）是进化机器人学很重要的问题。作者说其实在用它做进化算法的时候不一定要选择一个，我全都要。
+
+在进化机器人学（Evolutionary Robotics，ER）中，观察到可能很多的genotypes会带来相似的行为，而只有一点点差别的genotypes会带来很不同的行为。所以只考虑genotypes的多样性是不够的，真正重要的是在行为空间中的多样性。有各种各样的BSM来衡量这个多样性，但是我们很难找到最优的那个。所以为何不把它们融合起来？
+
+第一种方法就是求平均值。任何一个BSM，将其除以最大值之后，求平均值。
+
+第二种方法就是选定一个BSM，然后在一定的时间之后随机的跳到另一个BSM。
+
+很无聊啊这文章…………但我们可以看看他有什么五种BSM，有没有值得学习的：
+
+1. adhoc：最后一刻的位置。
+2. hamming：最后4000时刻，存储每个传感器的值，这样你就有4000*x个值了，这作为一个behavior的表征。然后对两个行为之间求hamming距离（bit的差异数目）。
+3. trajectory：50时刻的robot的位置
+4. entropy：比较复杂，而且看起来挺厉害的，看看实验结果如何，好的话可以拿过来。一般，不如trajectory。
+
+
+
+#### Discovering the Elite Hypervolume by Leveraging Interspecies Correlation
+
+(TODO!!)
+
+
+
+#### Evolving a Behavioral Repertoire for a Walking Robot
+
+**（一把学全部！！）**
+
+一组简单的控制器，每个负责往一个方向走，那么把他们融合起来就会得到一个掌握了往各个方向走的技能的agent。
+
+因此，本文的核心任务就是“evolving a repertoire”。学会各种简单的任务，比学会一个复杂的任务要简单。独立的学习不同任务可能会很昂贵。因此作者提出的Transferability-based Behavioral Repertoire Evolution algorithm (TBR-Evolution)将问题从一个agent的许多许多技能变成了学习许多许多个各不相同的agent。
+
+(TODO)
+
+
+
+#### Hierarchical Behavioral Repertoires with Unsupervised Descriptors
+
+Antonie Cully, Yiannis Demiris
+
+用了一个有层级的行为表征。主要任务是机械手学会画数字。在机器人领域用一批diverse的行为可以拓展机器人的适应性和鲁棒性。
+
+<img src="figs/CAbJcEc1haFHf4j4P5ecuSy_Ec957_NdXAcIDbcTw-jutFGhy3vjdLbZ5JI6Lv09V7IokwifIJtIjFUG2Rjv38CA3bf4eWGU3nkP77VXkHbg9MskhO49FJsdHEanm4FV-hS1fes0.png" alt="img" style="zoom: 25%;" />
+
+<img src="figs/EYOIJ2j4JsvUw_ocCzvGh8Xr-9HjIrhjDc3eKvGO_L952KCO38YU6r5yBCktHtQOhQFbL-X1O19Wt2MibyUWhwAYZdKcIKggqX7cfAxUpFxW93GVaJECfZs_2PFi7qqtEMgcIVVX.png" alt="img" style="zoom:33%;" />
+
+假设下面那个空间表示“agent画点”，那么中间这个空间就表示下面空间的一系列行为的序列，比如从一个点到另一个点。于是中间空间就表示“agent画线”。上面这个空间就是“agent画弧”。
+
+<img src="figs/PxHbqpFYp0hEQPDS3RCpy8JAVqoD5g1IDYIbzV5OIc_5yTGi057WL-RxI9YSBFoc5_TIn5GlewwcELNohyhXsB05TvJTfIsGZOwAaC6LEDn4AeSJClsL9wvUHYwrN4evuMEp5gkJ.png" alt="img" style="zoom:33%;" />
+机械臂画数字，这个数字被转换成图像，扔进MNIST的一个autoencoder中，于是得到了这个“机械臂数字->AE内部表征”。
+
+<img src="figs/nW4X_PJyNw34z1D_OUSkXpRORdZFJFxtyCiO3enP18Cw8sTJyKqgyAxuI0ZZ0FsL-B7qisZ09OiB5k2BEJhXKivbrulx5-k0RZ2i6Fvtm9TnnOYOQT4WSAMujOSusHL3uJ_fEApZ.png" alt="img" style="zoom:33%;" />
+
+因为有了这种层级表征，所以当我们替换最底层的Behavioral Repertoies为其他机器人的的时候，就可以transfer了。
+
+补充：最底层的这个空间中的点到底是什么意思？答：指的是机械手最基本的一些行为，比如说，“移动到空间(x, y)”，既代表着“一个行为”，也代表着“一个执行这个行为的机械操作”，后者我们就不管他了。
+
+思考：这个东西主要还是在机器人层面用…因为他有一个很明确的“basic behavioral descriptor”。
+
+
+
+#### Improving Exploration in Evolution Strategies for Deep Reinforcement Learning via a Population of Novelty-Seeking Agents
+
+本文把Novelty Search和Quality Diversity两种算法和ES结合在一起了。ES的具体原理就是施加噪声，然后利用Reward做加权得到梯度，然后更新。非常简单的东西。作者这里人为设定了Behaviour Characterization，然后用population中不同agent的BC的距离来表示Novelty，从而引入NS和QD的算法。
+
+作者指出QD和NS可以理解成利用一群Population来进行探索，而非一个Agent单打独斗，于是这样有扩展Exploration的作用，即从专才变成了通才。
+
+
+
+#### Learning Behavior Characterizations for Novelty Search
+
+Behavior Characterization (BC) 将一个agent map到“行为”上，即一个表示它是什么或做了什么的向量。（这不就是我们要找的吗）本文学到的BC将用来做进化，在解迷宫问题上得到了测试。task：一个fitmess函数和一个环境。domain：一组task，用同一个BC都可以阐述。
+
+作者指出，最简单形式的BC是：Stochastic Policy Induction for Relating Inter-task Trajectories（SPIRIT），具体而言就是：以agent在特定状态下执行特定动作的概率。设可能的state：{s1, ..., sn}和可能的action：{a1, …, am}，则BC为长度为nm的向量，
+
+<img src="figs/gFg1D5tubEelXtvbGk3MsMgqQsOH6ERpj1WGVyskwL1kDaZosx4a8nacFwyo4oBF5hhV5bJghR2s3MWYp9TtfXXeX-A7XABkB1B3MiONJya_eszmyFpePKVsnULUugXcCzNbhTzV.png" alt="img" style="width:50%;" /><img src="figs/LGHx6yxs9rNmtvz5wRW9zi-NWCdaoPadqrOJhhE3GonrED-BMiv39lxHvQpq_G3Jsr_vghgyMCwMzvyU-wR_VNFCrIR9pNJ-oygQlKw4k_ezbw8DRQKdZtkJJEW1FFLgBGsfETz9.png" alt="img" style="width:45%;" />
+
+上图：一批随机Policy I，和一批随机policy S。看看怎么样才能最快的从I到S）
+
+这有点类似于QD某篇文章说的用Agent朝向东南西北所占的时间比例作为表征。但是很不幸这个需要离散的状态和动作空间。
+
+作者随后说，所谓Learning就是给BC施加一个权重向量。那么不同的方法就是不同的权重向量的获得方式。作者拿出一批随机的Policy和一批训练完毕的成功policy。然后看看这两批policy的默认BC。看看这两批Policy的两批BC在哪个维度上区别最大，然后对应的施加权重，那么就可以得到一个新BC。
+
+在AURORA文（见下）中有提到这篇文章，那个作者指出本方法需要定义“成功个体”的概念，这就引入了先验知识。
+
+
+
+#### Policy Distillation
+
+各种策略如何融合。需要训练。这个可能对我们最后retrive那个步骤有用。
+
+
+
+#### Using Centroidal Voronoi Tessellations to Scale Up the Multidimensional Archive of Phenotypic Elites Algorithm
+
+有点意思，摘抄一下AURORA对他的评价：
+
+<img src="figs/v6BmvOOjGKlj3V-hwcYPOPE8MOsCgi3_Oj0WK8OJlJt75Vj80nCcjcPcDcmVy6jxNlVJHf1p7PNXnjjISDYhy0TfRTGUua3jmcMVsj5J6qkvI9jwgb2rUzKnmqdgKlcmOHq-ZGMN.png" alt="img" style="zoom: 25%;" />
+
+AURORA的作者谈到这篇文章的时候，说为什么它的结果比直接用MAP-elite好呢？因为，假设你采样了50step，每个step有一个（x，y）的坐标，那么这个BC就是100维的。在MAP-elite中，把这个100维空间给离散化，那么必然的有大量的cell是不会被填上的（因为不符合物理原理）。而CVT-MAP-Elites这个方法只采样可能的轨迹，因此就好了很多
+
+EA算法以前是作为优化算法用的。但是越来越多的人把它作为“diversifier”，比如扔进Novelty Search算法中去。
+
+<img src="figs/PR6I_EZKp2_PNliIKEY8FV6i8_k7-C1E2cbeNFZe4mlpMq_4J5cKHw57pIIty3b1b0_NMTI_EwHjM2Ug7SwAgsl_AjIHDTmOFElmrpjJSX2Md3kzv_pLGATZnuWnSzZTdoc-IsZp.png" alt="img" style="zoom:33%;" />
+
+（全局优化算法就要一个结果。多目标算法可能给出几个。population-based算法直接给你一群。）
+
+笔记正文开始：MAP-Elits对高纬度的BC空间无能为力。本文提出的方法可以给出几个指定数目的region。因为高维度的空间可以被分成若干个区域。本文运用Centroidal Voronoi Tessellation（CVT）可以将高维空间划分成若干个区域。然后就可以将任意一个高维点放进最近的区域中去。那么，相对于直接食用MAP-Elites算法把BC空间划分成一堆网格，本方法就将这个空间划分成K个区域。（格子从网格变成了不规则形状的区域）。本文就看到这里。
 
 
 
@@ -230,12 +273,6 @@ IMGEP定义了：
 
 
 
-#### Policy Distillation
-
-各种策略如何融合。需要训练。这个可能对我们最后retrive那个步骤有用。
-
-
-
 #### Unsupervised Learning and Exploration of Reachable Outcome Space
 
 唯一一篇引用AURORA的文章。应该说已经站在了最前沿。
@@ -260,46 +297,19 @@ IMGEP定义了：
 
 
 
-#### Behavioral diversity with multiple behavioral distances
-
-（2013）混合了多种Bahaviour Descriptor
-
-Behavioral Similarity Measure（BSM）是进化机器人学很重要的问题。作者说其实在用它做进化算法的时候不一定要选择一个，我全都要。
-
-在进化机器人学（Evolutionary Robotics，ER）中，观察到可能很多的genotypes会带来相似的行为，而只有一点点差别的genotypes会带来很不同的行为。所以只考虑genotypes的多样性是不够的，真正重要的是在行为空间中的多样性。有各种各样的BSM来衡量这个多样性，但是我们很难找到最优的那个。所以为何不把它们融合起来？
-
-第一种方法就是求平均值。任何一个BSM，将其除以最大值之后，求平均值。
-
-第二种方法就是选定一个BSM，然后在一定的时间之后随机的跳到另一个BSM。
-
-很无聊啊这文章…………但我们可以看看他有什么五种BSM，有没有值得学习的：
-
-1. adhoc：最后一刻的位置。
-2. hamming：最后4000时刻，存储每个传感器的值，这样你就有4000*x个值了，这作为一个behavior的表征。然后对两个行为之间求hamming距离（bit的差异数目）。
-3. trajectory：50时刻的robot的位置
-4. entropy：比较复杂，而且看起来挺厉害的，看看实验结果如何，好的话可以拿过来。一般，不如trajectory。
-
-
-
-#### Evolving a Behavioral Repertoire for a Walking Robot
-
-**（一把学全部！！）**
-
-一组简单的控制器，每个负责往一个方向走，那么把他们融合起来就会得到一个掌握了往各个方向走的技能的agent。
-
-因此，本文的核心任务就是“evolving a repertoire”。学会各种简单的任务，比学会一个复杂的任务要简单。独立的学习不同任务可能会很昂贵。因此作者提出的Transferability-based Behavioral Repertoire Evolution algorithm (TBR-Evolution)将问题从一个agent的许多许多技能变成了学习许多许多个各不相同的agent。
-
-(TODO)
-
-
-
-#### Discovering the Elite Hypervolume by Leveraging Interspecies Correlation
-
-(TODO!!)
-
-
-
 ## Multi-agent RL
+
+#### Competitive Experience Replay
+
+孙浩评价：Liu et al. (2019) proposed Competitive Experience Replay (CER), in which they use two actors and a centralized critic, and defined an intrinsic reward by the state coincidence of two actors. 
+
+简单来说就是A、B两个agent同时训练。如果A访问了B访问到的state（或者近似相等，比如$|s_a -s_b|<\delta$）就惩罚A，奖励B。所谓惩罚A就是原来的reward-1。所谓表扬B就是原来的reward+1。
+
+与HER算法相比（就是如果agent失败了，则将其视为一次成功的“到达了那个位置”，尽管那个位置在原来的任务中是失败的。），这个算法CER考虑的是跨agent的“reward relabelling”，而HER是“individual agent reward re-labelling”。
+
+作者用MADDPG跑。由于上面只是修改了reward而已，直接训练就好。
+
+
 
 #### Influence-based Multi-agent Exploration
 
@@ -319,8 +329,6 @@ Behavioral Similarity Measure（BSM）是进化机器人学很重要的问题。
 
 
 
-
-
 #### Map-based Multi-Policy Reinforcement Learning: Enhancing Adaptability of Robots by Deep Reinforcement Learning
 
 在摘要中写到几个两点：
@@ -328,8 +336,6 @@ Behavioral Similarity Measure（BSM）是进化机器人学很重要的问题。
 1. 在保证最大化return的前提下，寻找和存储各种行为的agents于一个有多维度的离散Map中。
 2. 可以快速进行Adaptation，不需要重训练
 3. Agents可以快速适应大的变化而不需要知道有关“他自己受伤”的先验信息。
-
-
 
 作者将Map Elites中原来的那个Mutation换成了DRL。作者用了DDPG。
 
@@ -358,21 +364,7 @@ Behavioral Similarity Measure（BSM）是进化机器人学很重要的问题。
 
 
 
-#### Competitive Experience Replay
-
-孙浩评价：Liu et al. (2019) proposed Competitive Experience Replay (CER), in which they use two actors and a centralized critic, and defined an intrinsic reward by the state coincidence of two actors. 
-
-简单来说就是A、B两个agent同时训练。如果A访问了B访问到的state（或者近似相等，比如$|s_a -s_b|<\delta$）就惩罚A，奖励B。所谓惩罚A就是原来的reward-1。所谓表扬B就是原来的reward+1。
-
-与HER算法相比（就是如果agent失败了，则将其视为一次成功的“到达了那个位置”，尽管那个位置在原来的任务中是失败的。），这个算法CER考虑的是跨agent的“reward relabelling”，而HER是“individual agent reward re-labelling”。
-
-作者用MADDPG跑。由于上面只是修改了reward而已，直接训练就好。
-
-
-
 ## Meta Learning
-
-
 
 #### TASK2VEC: Task Embedding for Meta-Learning 
 
@@ -453,6 +445,16 @@ Autoencoder跨不同的数据集学习固定长度的embedding。但作者说对
 
 ## Interpretation
 
+#### Free-Lunch Saliency via Attention in Atari Agents 
+
+为特征提取器添加了一个attention模块称之为FLS（Free Lunch Saliency）。可以生成saliency map，反应目前agent正在看哪里。
+
+<img src="figs/image-20191102174026601.png" alt="image-20191102174026601" style="zoom:50%;" />
+
+太无聊了。增加一个attention模块然后干啥干啥的。毫无新意。不看了。
+
+
+
 #### Unmasking Clever Hans Predictors and Assessing What Machines Really Learn 
 
 Wojciech Samek。
@@ -527,14 +529,6 @@ SpRAy对Heatmap进行操作，而不是对原始的图像进行操作。
 3. 都是单张图片，而不是agent本身的决策序列。
 
 
-
-#### Free-Lunch Saliency via Attention in Atari Agents 
-
-为特征提取器添加了一个attention模块称之为FLS（Free Lunch Saliency）。可以生成saliency map，反应目前agent正在看哪里。
-
-<img src="figs/image-20191102174026601.png" alt="image-20191102174026601" style="zoom:50%;" />
-
-太无聊了。增加一个attention模块然后干啥干啥的。毫无新意。不看了。
 
 
 ## Novelty-seeking RL
